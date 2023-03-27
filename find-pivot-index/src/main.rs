@@ -2,32 +2,37 @@ fn main() {
     println!("Hello, world!");
 }
 
-// from running-sum-of-1d-array exercise 
-#[inline]
-pub fn running_sum(nums: Vec<i32>) -> Vec<i32> {
-        nums.iter().scan(0, |state, n| {
+trait ScanSum {
+    fn scan_sum<'a>(self) -> std::iter::Scan<Self, i32, fn(&mut i32, &i32) -> Option<i32>>
+        where
+            Self : Sized
+        ;
+}
+
+impl<'a, T> ScanSum for T 
+where
+    T: Iterator<Item = &'a i32>,
+    <T as Iterator>::Item: Clone,
+{
+    #[inline]
+    fn scan_sum(self) -> std::iter::Scan<Self, i32, fn(&mut i32, &i32) -> Option<i32>>
+    {
+        self.scan(0, |state, n| {
             *state += n;
             Some(*state)
-        }).collect()
+        })
     }
+}
 
 pub fn pivot_index(nums: Vec<i32>) -> i32 {
-    let acc_left = nums.iter().scan(0, |state, n| {
-            *state += n;
-            Some(*state)
-        }).collect::<Vec<_>>();
+    let acc_left = nums.iter().scan_sum();
+    let acc_right = nums.iter().rev().scan_sum().collect::<Vec<_>>();
 
-    let acc_right = nums.iter().rev().scan(0, |state, n| {
-            *state += n;
-            Some(*state)
-        }).collect::<Vec<_>>();
-
-    acc_left.into_iter()
+    acc_left
         .zip(acc_right.into_iter().rev())
-        .enumerate()
-        .find_map(|(index, (sum_left, sum_right))| {
-            if sum_left == sum_right { Some(index as i32) } else { None }
-        }).unwrap_or(-1)
+        .position(|(sum_left, sum_right)|  sum_left == sum_right)
+        .map(|x| x as i32)
+        .unwrap_or(-1)
 }
 
 #[test]
