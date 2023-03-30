@@ -8,12 +8,10 @@ pub fn is_subsequence(s: String, t: String) -> bool {
     let mut sc = scs.next();
     for tc in t.chars() {
         match sc {
-            None => break,
+            None => return true,
             Some(scc) => {
                 if tc == scc {
                     sc = scs.next();
-                } else {
-                    continue
                 }
             }
         }
@@ -30,6 +28,7 @@ mod tests {
     use crate::is_subsequence;
 
     #[test_case("abc", "ahbgdc", true)]
+    #[test_case("abc", "abc", true)]
     #[test_case("axc", "ahbgdc", false)]
     #[test_case("b", "c", false)]
     fn examples(a: &str, b: &str, expected: bool) {
