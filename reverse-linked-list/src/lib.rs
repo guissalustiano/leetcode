@@ -25,14 +25,17 @@ impl ListNode {
 }
 
 pub fn reverse_list(head: Option<Box<ListNode>>) -> Option<Box<ListNode>> {
-    let mut rev_head = None;
-    let mut next = head;
-    while let Some(node) = next {
-        rev_head = Some(Box::new(ListNode { val: node.val, next: rev_head }));
-        next = node.next;
+    let mut current = head;
+    let mut previous = None;
+    while let Some(mut node) = current {
+        current = node.next.take();
+        node.next = previous;
+        previous = Some(node);
     };
-    rev_head
+    previous
 }
+
+// also has a recursive solution
 
 #[cfg(test)]
 mod tests {
