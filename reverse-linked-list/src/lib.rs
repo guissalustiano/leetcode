@@ -24,18 +24,27 @@ impl ListNode {
     }
 }
 
-pub fn reverse_list(head: Option<Box<ListNode>>) -> Option<Box<ListNode>> {
+type Link = Option<Box<ListNode>>;
+
+pub fn reverse_list(head: Link) -> Link {
     let mut current = head;
     let mut previous = None;
     while let Some(mut node) = current {
-        current = node.next.take();
-        node.next = previous;
+        current = std::mem::replace(&mut node.next, previous);
         previous = Some(node);
     };
     previous
 }
 
 // also has a recursive solution
+// https://leetcode.com/problems/reverse-linked-list/solutions/3162279/idiomatic-rust-with-recursion-analysis/?envType=study-plan&id=level-1
+// ```cur_prev(head, None) ```
+pub fn cur_prev(cur: Link, prev: Link) -> Link {
+    match cur {
+        Some(mut node) => cur_prev(std::mem::replace(&mut node.next, prev), Some(node)),
+        None => prev
+    }
+}
 
 #[cfg(test)]
 mod tests {
