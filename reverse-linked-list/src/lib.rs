@@ -1,27 +1,25 @@
 #[derive(PartialEq, Eq, Clone, Debug)]
 pub struct ListNode {
   pub val: i32,
-  pub next: Option<Box<ListNode>>
+  pub next: Link
 }
 
-impl ListNode {
+#[derive(PartialEq, Eq, Clone, Debug)]
+pub struct List(Link);
+
+impl List {
   #[inline]
-  fn new(val: i32) -> Self {
-    ListNode {
-      next: None,
-      val
-    }
+  fn new() -> Self {
+      List(None)
   }
 
-  // from: https://rust-unofficial.github.io/too-many-lists/second-final.html
-  fn push(&mut self, val: i32) {
-        let new_node = Box::new(ListNode {
-            val,
-            next: self.next.take(),
-        });
+  pub fn from_vec(vs: Vec<i32>) -> Self {
+    vs.into_iter().rev().fold(Self::new(), |head, v| head.push(v))
+  }
 
-        self.next = Some(new_node);
-    }
+  fn push(self, val: i32) -> Self {
+      List(Some(Box::new(ListNode { val, next: self.0 })))
+  }
 }
 
 type Link = Option<Box<ListNode>>;
@@ -53,18 +51,9 @@ mod tests {
 
     #[test]
     fn test_1() {
-        let mut l1 = Box::new(ListNode::new(1));
-        l1.push(5);
-        l1.push(4);
-        l1.push(3);
-        l1.push(2);
+        let l1 = List::from_vec(vec![1, 2, 3, 4, 5]);
+        let expected = List::from_vec(vec![5, 4, 3, 2, 1]);
 
-        let mut expected = Box::new(ListNode::new(5)); // we could'd change the head
-        expected.push(1);
-        expected.push(2);
-        expected.push(3);
-        expected.push(4);
-
-        assert_eq!(reverse_list(Some(l1)), Some(expected));
+        assert_eq!(reverse_list(l1.0), expected.0);
     }
 }

@@ -5,24 +5,22 @@ pub struct ListNode {
   pub next: Link
 }
 
-impl ListNode {
+#[derive(PartialEq, Eq, Clone, Debug)]
+pub struct List(Link);
+
+impl List {
   #[inline]
-  fn new(val: i32) -> Self {
-    ListNode {
-      next: None,
-      val
-    }
+  fn new() -> Self {
+      List(None)
   }
 
-  // from: https://rust-unofficial.github.io/too-many-lists/second-final.html
-  fn push(&mut self, val: i32) {
-        let new_node = Box::new(ListNode {
-            val,
-            next: self.next.take(),
-        });
+  pub fn from_vec(vs: Vec<i32>) -> Self {
+    vs.into_iter().rev().fold(Self::new(), |head, v| head.push(v))
+  }
 
-        self.next = Some(new_node);
-    }
+  fn push(self, val: i32) -> Self {
+      List(Some(Box::new(ListNode { val, next: self.0 })))
+  }
 }
 
 type Link = Option<Box<ListNode>>;
@@ -51,39 +49,28 @@ mod tests {
 
     #[test]
     fn test_1() {
-        let mut l1 = Box::new(ListNode::new(1));
-        l1.push(4);
-        l1.push(2);
+        let l1 = List::from_vec(vec![1, 2, 4]);
+        let l2 = List::from_vec(vec![1, 3, 4]);
+        let expected = List::from_vec(vec![1, 1, 2, 3, 4, 4]);
 
-        let mut l2 = Box::new(ListNode::new(1));
-        l2.push(4);
-        l2.push(3);
-
-        let mut expected = Box::new(ListNode::new(1)); // we could'd change the head
-        expected.push(4);
-        expected.push(4);
-        expected.push(3);
-        expected.push(2);
-        expected.push(1);
-
-        assert_eq!(merge_two_lists(Some(l1), Some(l2)), Some(expected));
+        assert_eq!(merge_two_lists(l1.0, l2.0), expected.0);
     }
 
     #[test]
     fn test_2() {
-        let l1 = None;
-        let l2 = None;
-        let expected = None;
+        let l1 = List::from_vec(vec![]);
+        let l2 = List::from_vec(vec![]);
+        let expected = List::from_vec(vec![]);
 
-        assert_eq!(merge_two_lists(l1, l2), expected);
+        assert_eq!(merge_two_lists(l1.0, l2.0), expected.0);
     }
 
     #[test]
     fn test_3() {
-        let l1 = None;
-        let l2 = Some(Box::new(ListNode::new(0)));
-        let expected = l2.clone();
+        let l1 = List::from_vec(vec![]);
+        let l2 = List::from_vec(vec![0]);
+        let expected = List::from_vec(vec![0]);
 
-        assert_eq!(merge_two_lists(l1, l2), expected);
+        assert_eq!(merge_two_lists(l1.0, l2.0), expected.0);
     }
 }
