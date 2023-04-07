@@ -1,21 +1,19 @@
 pub fn longest_palindrome(s: String) -> i32 {
-    s.bytes().fold([0; 255], |mut state, c| {
-        state[c as usize] += 1;
-        state
-    }).into_iter().fold(0, |mut acc, count| {
-        // the palindrome could have one letter leftover
-        // here we check if already count this
-        if count % 2 == 1 {
-            if acc % 2 == 0  {
-                acc += 1;
-            }
-            acc += count - 1;
-        } else {
-            acc += count;
-        }
+    let mut state = [0; 64];
 
-        acc
-    })
+    for c in s.bytes() {
+        state[(c & 0b111111) as usize] += 1;
+    }
+
+    let mut acc = 0;
+    for count in state {
+        if acc & 1 == 0  && count & 1 == 1{
+            acc |= 1;
+        }
+        acc += count & -2;
+    }
+
+    acc
 }
 
 #[cfg(test)]
