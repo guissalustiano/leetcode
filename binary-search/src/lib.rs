@@ -1,20 +1,17 @@
+use std::cmp::Ordering;
+
+// https://leetcode.com/problems/binary-search/solutions/1641029/rust-solution/?envType=study-plan&id=level-1&languageTags=rust
 pub fn search(nums: Vec<i32>, target: i32) -> i32 {
-    let mut botton = 0;
-    let mut top = nums.len();
-    loop {
-        let guess = (botton + top)/2;
-        match nums[guess].cmp(&target) {
-            std::cmp::Ordering::Less => {
-                if botton == guess { return -1 } 
-                botton = guess
-            },
-            std::cmp::Ordering::Greater => {
-                if top == guess { return -1 } 
-                top = guess
-            },
-            std::cmp::Ordering::Equal => return guess as i32,
+    let (mut low, mut high) = (0, nums.len());
+    while low < high {
+        let mid = low + (high - low) / 2;
+        match nums[mid].cmp(&target) {
+            Ordering::Equal => return mid as i32,
+            Ordering::Less => low = mid + 1,
+            Ordering::Greater => high = mid,
         }
     }
+    -1
 }
 
 #[cfg(test)]
