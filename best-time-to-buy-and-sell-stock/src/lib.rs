@@ -1,26 +1,17 @@
 
 pub fn max_profit(prices: Vec<i32>) -> i32 {
-    let mut lower: Option<i32> = None;
-    let mut bigger: Option<i32> = None;
+    let prices1 = prices.clone();
+    let prices2 = prices;
 
-    prices.into_iter().for_each(|v|{
-        if let Some(l) = lower {
-            if v < l {
-                lower = Some(v);
+    prices1.iter().enumerate().map(|(i, p1)| { 
+        prices2.iter().enumerate().map(move |(j, p2)| {
+            if j >= i {
+                Some(p2 - p1)
+            } else {
+                None
             }
-
-            if v > bigger.unwrap_or(l) {
-                bigger = Some(v);
-            }
-        } else {
-            lower = Some(v);
-        }
-    });
-
-    match (lower, bigger) {
-        (Some(l), Some(b)) => b - l,
-        _ => 0
-    }
+        })
+    }).flatten().max().flatten().unwrap_or(0)
 }
 
 #[cfg(test)]
